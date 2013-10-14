@@ -228,12 +228,12 @@ class ResponseParserSpec extends Specification {
       rVolume.tradedVolume should haveSize(11)
 
       var pVolume = rVolume.tradedVolume(4)
-      pVolume.price shouldEqual 6.6
-      pVolume.tradedAmount shouldEqual 697.17
+      pVolume.price shouldEqual BigDecimal("6.6")
+      pVolume.tradedAmount shouldEqual BigDecimal("697.17")
 
       pVolume = rVolume.tradedVolume(5)
-      pVolume.price shouldEqual 6.8
-      pVolume.tradedAmount shouldEqual 650.85
+      pVolume.price shouldEqual BigDecimal("6.8")
+      pVolume.tradedAmount shouldEqual BigDecimal("650.85")
 
     }
   }
