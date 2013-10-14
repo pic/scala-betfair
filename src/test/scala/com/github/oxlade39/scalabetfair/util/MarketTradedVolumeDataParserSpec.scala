@@ -8,7 +8,7 @@ import org.specs2.mutable.Specification
  * Date: 10/14/13
  * Time: 10:02 PM
  */
-class MarketPricesDataParserSpec extends Specification {
+class MarketTradedVolumeDataParserSpec extends Specification {
 
   import MarketTradedVolumeDataParser._
 
