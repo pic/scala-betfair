@@ -2,59 +2,42 @@ package com.github.oxlade39.scalabetfair.service
 
 import com.betfair.publicapi.types.exchange.v5._
 import com.github.oxlade39.scalabetfair.request._
-import com.github.oxlade39.scalabetfair.domain.{Runner, MarketDetail, MarketName, MarketPrices}
+import com.github.oxlade39.scalabetfair.domain._
 import com.betfair.publicapi.types.global.v3.{GetEventTypesReq, GetEventTypesResp}
 import com.github.oxlade39.scalabetfair.response.{RealResponseParserComponent, ResponseParserComponent}
 import scala.Left
-import com.github.oxlade39.scalabetfair.domain.MarketPrices
-import com.github.oxlade39.scalabetfair.domain.Runner
-import com.github.oxlade39.scalabetfair.domain.MarketDetail
 import scala.Right
-import com.github.oxlade39.scalabetfair.domain.MarketName
 import scala.Left
-import com.github.oxlade39.scalabetfair.domain.MarketPrices
-import com.github.oxlade39.scalabetfair.domain.Runner
-import com.github.oxlade39.scalabetfair.domain.MarketDetail
 import scala.Right
-import com.github.oxlade39.scalabetfair.domain.MarketName
 import scala.Left
 import com.github.oxlade39.scalabetfair.request.RequestError
-import com.github.oxlade39.scalabetfair.domain.MarketPrices
 import com.github.oxlade39.scalabetfair.request.AllMarketsRequest
 import com.github.oxlade39.scalabetfair.request.Event
-import com.github.oxlade39.scalabetfair.domain.Runner
-import com.github.oxlade39.scalabetfair.domain.MarketDetail
 import scala.Right
-import com.github.oxlade39.scalabetfair.domain.MarketName
 import com.github.oxlade39.scalabetfair.session._
 import scala.Left
 import com.github.oxlade39.scalabetfair.request.RequestError
-import com.github.oxlade39.scalabetfair.domain.MarketPrices
 import com.github.oxlade39.scalabetfair.request.AllMarketsRequest
 import com.github.oxlade39.scalabetfair.request.Event
-import com.github.oxlade39.scalabetfair.domain.Runner
-import com.github.oxlade39.scalabetfair.domain.MarketDetail
 import scala.Right
-import com.github.oxlade39.scalabetfair.domain.MarketName
 import com.github.oxlade39.scalabetfair.date.Dates
 import org.joda.time.DateTime
 import scala.Left
 import com.github.oxlade39.scalabetfair.request.RequestError
-import com.github.oxlade39.scalabetfair.domain.MarketPrices
 import com.github.oxlade39.scalabetfair.request.AllMarketsRequest
 import com.github.oxlade39.scalabetfair.request.Event
-import com.github.oxlade39.scalabetfair.domain.Runner
-import com.github.oxlade39.scalabetfair.domain.MarketDetail
 import scala.Right
-import com.github.oxlade39.scalabetfair.domain.MarketName
 import scala.Left
+import com.github.oxlade39.scalabetfair.request.RequestError
+import com.github.oxlade39.scalabetfair.request.AllMarketsRequest
+import com.github.oxlade39.scalabetfair.request.Event
+import scala.Right
+import com.github.oxlade39.scalabetfair.util.MarketTradedVolumeDataParser.InflatedMarketTradedVolume
 import com.github.oxlade39.scalabetfair.request.RequestError
 import com.github.oxlade39.scalabetfair.domain.MarketPrices
 import com.github.oxlade39.scalabetfair.request.AllMarketsRequest
 import com.github.oxlade39.scalabetfair.request.Event
-import com.github.oxlade39.scalabetfair.domain.Runner
 import com.github.oxlade39.scalabetfair.domain.MarketDetail
-import scala.Right
 import com.github.oxlade39.scalabetfair.domain.MarketName
 
 /**
@@ -102,6 +85,14 @@ trait RealBetfairMarketServiceComponent extends BetfairMarketService {
 
     responseParser.toMarketPrices(response, market)
   }
+
+  def marketTradedVolume(marketId: Int, currency: String): Either[MarketTradedVolume, RequestError] = {
+    val bfRequest: GetMarketTradedVolumeCompressedReq = requestFactory.marketTradedVolumeCompressed(marketId, currency)
+    val response: GetMarketTradedVolumeCompressedResp = exchangeService.getMarketTradedVolumeCompressed(bfRequest)
+
+    responseParser.toMarketTradedVolume(response)
+  }
+
 }
 
 /**

@@ -14,12 +14,19 @@ trait RequestFactoryComponent {
   trait RequestFactory {
     def activeEvents: GetEventTypesReq
     def allMarkets(request: AllMarketsRequest): GetAllMarketsReq
+
+    /**
+     * @param currencyCode if not specified, the currency of the account is used
+     */
     def marketPrices(market: MarketName, currencyCode: Option[String] = None): GetMarketPricesCompressedReq
     def completeMarketPrices(market: MarketName, currencyCode: Option[String] = None): GetCompleteMarketPricesCompressedReq
     def market(id: Int): GetMarketReq
     def marketInfo(id: Int): GetMarketInfoReq
+    /**
+     * @param currencyCode for this request currencyCode must be specified. Betfair documentation states that otherwise returned volumes may be wrong
+     */
+    def marketTradedVolumeCompressed(id: Int, currencyCode: String): GetMarketTradedVolumeCompressedReq
   }
-
 }
 
 trait WsdlRequestFactoryComponent extends RequestFactoryComponent {
@@ -86,6 +93,14 @@ trait WsdlRequestFactoryComponent extends RequestFactoryComponent {
       marketInfoReq.setMarketId(id)
       marketInfoReq.setHeader(headers.v5header)
       marketInfoReq
+    }
+
+    def marketTradedVolumeCompressed(id: Int, currencyCode: String): GetMarketTradedVolumeCompressedReq = {
+      val request = new GetMarketTradedVolumeCompressedReq()
+      request.setMarketId(id)
+      request.setHeader(headers.v5header)
+      request.setCurrencyCode(currencyCode)
+      request
     }
 
   }

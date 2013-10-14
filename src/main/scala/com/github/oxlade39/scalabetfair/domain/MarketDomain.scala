@@ -1,6 +1,7 @@
 package com.github.oxlade39.scalabetfair.domain
 
 import org.joda.time.DateTime
+import com.github.oxlade39.scalabetfair.util.MarketTradedVolumeDataParser.InflatedMarketTradedVolume
 
 /**
  * Represents the identity of a Market on the betfair exchange.
@@ -88,6 +89,12 @@ case class MarketPrices(
  inPlayDelay: Int,
  runners: List[RunnerDetail],
  compressedSource: Option[String]
+)
+
+case class MarketTradedVolume(
+  marketId: Int,
+  currency: String,
+  volume: InflatedMarketTradedVolume
 )
 
 /**

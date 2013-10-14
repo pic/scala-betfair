@@ -28,6 +28,7 @@ import scala.Right
 import scala.Some
 import com.github.oxlade39.scalabetfair.domain.MarketName
 import com.github.oxlade39.scalabetfair.request.Event
+import com.github.oxlade39.scalabetfair.util.MarketTradedVolumeDataParser.InflatedMarketTradedVolume
 
 /**
  * @author dan
@@ -141,10 +142,30 @@ class RealBetfairMarketServiceSpec extends Specification with Mockito {
       response mustEqual parsedResponse
     }
 
+    "fetch market traded volume from the betfair exchange service using the request factory and response parser" in {
+      val underTest = new UnderTest
+
+      val bfRequest = new GetMarketTradedVolumeCompressedReq
+      val bfResponse = new GetMarketTradedVolumeCompressedResp
+
+      val parsedResponse: Either[MarketTradedVolume, RequestError] = Left(MarketTradedVolume(90, "EUR", InflatedMarketTradedVolume("string", Nil)))
+
+      underTest.requestFactory.marketTradedVolumeCompressed(90, "EUR") returns bfRequest
+      underTest.exchangeService.getMarketTradedVolumeCompressed(bfRequest) returns bfResponse
+      underTest.responseParser.toMarketTradedVolume(bfResponse) returns parsedResponse
+
+      val response: Either[MarketTradedVolume, RequestError] =
+        underTest.marketTradedVolume(90, "EUR")
+
+      response mustEqual parsedResponse
+    }
+
+
   }
 }
 
 object TodayAndTomorrow extends DateRange(new DateTime(), new DateTime().plusDays(1))
+object ThisWeek extends DateRange(new DateTime(), new DateTime().plusDays(7))
 
 
 trait Example extends App {
@@ -153,21 +174,24 @@ trait Example extends App {
   def exampleService: ExampleService
 
   def run() {
-    val pricesOrError = exampleService.activeEvents() match {
+    val resOrError = exampleService.activeEvents() match {
       case Right(error) => Right(error)
       case Left(activeEvents) => {
-        val racing: Option[Event] = activeEvents.find(e => e.name.isDefined && e.name.get.contains("Soccer"))
-        val markets = racing.map(e => exampleService.allMarkets(AllMarketsRequest(e, TodayAndTomorrow)))
+        val event: Option[Event] = activeEvents.find(e => e.name.isDefined && e.name.get.contains("Soccer"))
+        val markets = event.map(e => exampleService.allMarkets(AllMarketsRequest(e, ThisWeek)))
         markets match {
           case None => Right(RequestError("no market details"))
           case Some(Left(Nil)) => Right(RequestError("no market details"))
           case Some(Right(error)) => Right(error)
-          case Some(Left(marketDetails)) => exampleService.marketPrices(marketDetails.head.marketName)
+          case Some(Left(marketDetails)) => {
+            val mo = marketDetails.find { m => m.amountMatched > 10000 }
+            mo.map { m => exampleService.marketTradedVolume(m.marketName.id, "EUR") }
+          }
         }
       }
     }
 
-    println(pricesOrError)
+    println(resOrError)
   }
 
   run()

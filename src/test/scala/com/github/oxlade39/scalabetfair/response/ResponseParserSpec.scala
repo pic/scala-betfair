@@ -5,15 +5,19 @@ import com.betfair.publicapi.types.exchange.v5.{Market => BfMarket, Runner => Bf
 import io.Source
 import org.joda.time.{DateTimeZone, DateTime}
 import com.betfair.publicapi.types.global.v3.{EventType, ArrayOfEventType, GetEventTypesResp}
-import scala.Left
-import com.github.oxlade39.scalabetfair.request.RequestError
-import com.github.oxlade39.scalabetfair.request.Event
-import scala.Right
-import scala.Some
 import com.github.oxlade39.scalabetfair.domain
-import com.github.oxlade39.scalabetfair.domain.{MarketLiteDetail, Runner, MarketName, RunnerDetail}
+import com.github.oxlade39.scalabetfair.domain._
 import java.util.{GregorianCalendar, TimeZone}
 import javax.xml.datatype.{DatatypeFactory, XMLGregorianCalendar}
+import scala.Left
+import com.github.oxlade39.scalabetfair.request.RequestError
+import com.github.oxlade39.scalabetfair.domain.RunnerDetail
+import com.github.oxlade39.scalabetfair.domain.Runner
+import scala.Right
+import scala.Some
+import com.github.oxlade39.scalabetfair.domain.MarketName
+import com.github.oxlade39.scalabetfair.request.Event
+import com.github.oxlade39.scalabetfair.domain.MarketLiteDetail
 
 /**
  * @author dan
@@ -207,6 +211,31 @@ class ResponseParserSpec extends Specification {
 
       lite mustEqual MarketLiteDetail("INACTIVE", time, 6, 7)
     }
+
+    "return InflatedMarketTraddVolume from GetMarketTradedVolumeCompressedResp" in {
+
+      val bfResponse = new GetMarketTradedVolumeCompressedResp
+      bfResponse.setTradedVolume(TestExamples.exampleCompressedMarketTradedVolume)
+
+      val response: Either[MarketTradedVolume, RequestError] = underTest.toMarketTradedVolume(bfResponse)
+
+      response.isLeft mustEqual true
+      val volume = response.left.get.volume
+
+      volume.runnersInfo.size mustEqual 3
+      val rVolume = volume.runnersInfo(1)
+      rVolume.selectionId shouldEqual 58943
+      rVolume.tradedVolume should haveSize(11)
+
+      var pVolume = rVolume.tradedVolume(4)
+      pVolume.price shouldEqual 6.6
+      pVolume.tradedAmount shouldEqual 697.17
+
+      pVolume = rVolume.tradedVolume(5)
+      pVolume.price shouldEqual 6.8
+      pVolume.tradedAmount shouldEqual 650.85
+
+    }
   }
 
 
@@ -231,6 +260,7 @@ object TestExamples {
   lazy val exampleMarketDataStringBis = singleLineFromString("marketData.txt")
   lazy val exampleCompressedMarketPrices = singleLineFromString("compressedMarketPrices.txt")
   lazy val exampleCompressedCompleteMarketPrices = singleLineFromString("compressedCompleteMarketPrices.txt")
+  lazy val exampleCompressedMarketTradedVolume = singleLineFromString("compressedMarketTradedVolume.txt")
 
   def singleLineFromString(fileName: String): String = {
     val resource = Thread.currentThread().getContextClassLoader.getResourceAsStream(fileName)

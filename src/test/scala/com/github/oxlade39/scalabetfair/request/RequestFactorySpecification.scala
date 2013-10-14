@@ -119,5 +119,19 @@ class RequestFactorySpecification extends Specification with Mockito {
       marketInfo.getMarketId mustEqual 5789
     }
 
+    "create a marketTradedVolume request" in {
+      val underTest = new UnderTest()
+      val v5Header = new V5Header()
+      underTest.headers.v5header returns v5Header
+
+      val request = underTest.requestFactory.marketTradedVolumeCompressed(5789, "EUR")
+
+      request.getHeader must_== v5Header
+
+      request.getMarketId mustEqual 5789
+      request.getCurrencyCode mustEqual "EUR"
+    }
+
+
   }
 }

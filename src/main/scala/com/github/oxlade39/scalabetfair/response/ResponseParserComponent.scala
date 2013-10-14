@@ -16,6 +16,8 @@ import com.betfair.publicapi.util.InflatedCompleteMarketPrices.{InflatedComplete
 import com.betfair.publicapi.util.InflatedCompleteMarketPrices
 import com.github.oxlade39.scalabetfair.domain.RunnerPrice
 import com.github.oxlade39.scalabetfair.util.MarketPricesDataParser
+import com.github.oxlade39.scalabetfair.util.MarketTradedVolumeDataParser
+import com.github.oxlade39.scalabetfair.util.MarketTradedVolumeDataParser.InflatedMarketTradedVolume
 
 /**
  * @author dan
@@ -33,6 +35,8 @@ trait ResponseParserComponent {
     def toMarketPrices(response: GetMarketPricesCompressedResp, marketName: MarketName): Either[MarketPrices, RequestError]
     def toMarketPrices(response: GetCompleteMarketPricesCompressedResp,
                        marketName: MarketName): Either[MarketPrices, RequestError]
+    def toMarketTradedVolume(response: GetMarketTradedVolumeCompressedResp): Either[MarketTradedVolume, RequestError]
+
   }
 }
 
@@ -141,6 +145,16 @@ trait RealResponseParserComponent extends ResponseParserComponent {
         response.getBackAmountAvailable,
         response.getLayAmountAvailable
       )
+
+    def toMarketTradedVolume(response: GetMarketTradedVolumeCompressedResp): Either[MarketTradedVolume, RequestError] = {
+
+      import MarketTradedVolumeDataParser._
+
+      val volume: InflatedMarketTradedVolume = inflateMarketTradedVolume(response.getTradedVolume)
+
+      Left(MarketTradedVolume(response.getMarketId, response.getCurrencyCode, volume))
+    }
+
   }
 
   val londonTimezone = DateTimeZone.forID("Europe/London")

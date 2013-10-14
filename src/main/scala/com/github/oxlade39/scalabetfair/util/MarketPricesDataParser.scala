@@ -9,7 +9,7 @@ package com.github.oxlade39.scalabetfair.util
 
 object MarketPricesDataParser {
 
-  import ParseToolkit.escapedSplit
+  import ParseToolkit._
 
   class InvalidMarketPricesData extends RuntimeException
   object InvalidMarketPricesData extends InvalidMarketPricesData
@@ -164,15 +164,6 @@ object MarketPricesDataParser {
     }
   }
 
-  private def toBigDecimal(s: String): Option[BigDecimal] = {
-    try {
-      Some(BigDecimal(s))
-    } catch {
-      case e: NumberFormatException => {
-        None
-      }
-    }
-  }
 
 
 }

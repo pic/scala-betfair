@@ -20,4 +20,14 @@ object ParseToolkit {
     }
   }
 
+  def toBigDecimal(s: String): Option[BigDecimal] = {
+    try {
+      Some(BigDecimal(s))
+    } catch {
+      case e: NumberFormatException => {
+        None
+      }
+    }
+  }
+
 }
