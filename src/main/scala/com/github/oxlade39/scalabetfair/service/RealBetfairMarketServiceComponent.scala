@@ -86,12 +86,29 @@ trait RealBetfairMarketServiceComponent extends BetfairMarketService {
     responseParser.toMarketPrices(response, market)
   }
 
+  def completeMarketPricesData(market: MarketName, currency: Option[String] = None): Either[CompleteMarketPricesData, RequestError] = {
+    val bfRequest: GetCompleteMarketPricesCompressedReq = requestFactory.completeMarketPrices(market, currency)
+    val response: GetCompleteMarketPricesCompressedResp = exchangeService.getCompleteMarketPricesCompressed(bfRequest)
+    val timestamp = System.currentTimeMillis()
+
+    responseParser.toCompleteMarketPricesData(response, timestamp)
+  }
+
   def marketTradedVolume(marketId: Int, currency: String): Either[MarketTradedVolume, RequestError] = {
     val bfRequest: GetMarketTradedVolumeCompressedReq = requestFactory.marketTradedVolumeCompressed(marketId, currency)
     val response: GetMarketTradedVolumeCompressedResp = exchangeService.getMarketTradedVolumeCompressed(bfRequest)
 
     responseParser.toMarketTradedVolume(response)
   }
+
+  def marketTradedVolumeData(marketId: Int, currency: String): Either[MarketTradedVolumeData, RequestError] = {
+    val bfRequest: GetMarketTradedVolumeCompressedReq = requestFactory.marketTradedVolumeCompressed(marketId, currency)
+    val response: GetMarketTradedVolumeCompressedResp = exchangeService.getMarketTradedVolumeCompressed(bfRequest)
+    val timestamp = System.currentTimeMillis()
+
+    responseParser.toMarketTradedVolumeData(response, timestamp)
+  }
+
 
 }
 

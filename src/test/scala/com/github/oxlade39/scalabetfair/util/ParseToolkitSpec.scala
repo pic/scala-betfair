@@ -14,6 +14,10 @@ class ParseToolkitSpec extends Specification {
 
   "escapedSplit" should {
 
+    "split an empty string" in {
+       escapedSplit("", ":") mustEqual List("")
+    }
+
     "split a string in a list of pieces" in {
       escapedSplit("ciao:miao", ":") mustEqual List("ciao", "miao")
     }

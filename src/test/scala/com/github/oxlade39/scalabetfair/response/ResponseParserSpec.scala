@@ -220,7 +220,8 @@ class ResponseParserSpec extends Specification {
       val response: Either[MarketTradedVolume, RequestError] = underTest.toMarketTradedVolume(bfResponse)
 
       response.isLeft mustEqual true
-      val volume = response.left.get.volume
+      response.left.get.volume should beSome[Any]
+      val volume = response.left.get.volume.get
 
       volume.runnersInfo.size mustEqual 3
       val rVolume = volume.runnersInfo(1)

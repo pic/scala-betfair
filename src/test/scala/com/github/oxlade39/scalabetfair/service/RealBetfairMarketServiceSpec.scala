@@ -148,7 +148,7 @@ class RealBetfairMarketServiceSpec extends Specification with Mockito {
       val bfRequest = new GetMarketTradedVolumeCompressedReq
       val bfResponse = new GetMarketTradedVolumeCompressedResp
 
-      val parsedResponse: Either[MarketTradedVolume, RequestError] = Left(MarketTradedVolume(90, "EUR", InflatedMarketTradedVolume("string", Nil)))
+      val parsedResponse: Either[MarketTradedVolume, RequestError] = Left(MarketTradedVolume(90, "EUR", Some(InflatedMarketTradedVolume("string", Nil))))
 
       underTest.requestFactory.marketTradedVolumeCompressed(90, "EUR") returns bfRequest
       underTest.exchangeService.getMarketTradedVolumeCompressed(bfRequest) returns bfResponse

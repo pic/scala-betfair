@@ -1,8 +1,15 @@
 package com.github.oxlade39.scalabetfair.service
 
 import com.github.oxlade39.scalabetfair.request.{AllMarketsRequest, RequestError, Event}
-import com.github.oxlade39.scalabetfair.domain.{MarketTradedVolume, MarketPrices, MarketName, MarketDetail}
+import com.github.oxlade39.scalabetfair.domain._
 import com.github.oxlade39.scalabetfair.util.MarketTradedVolumeDataParser.InflatedMarketTradedVolume
+import com.github.oxlade39.scalabetfair.request.RequestError
+import com.github.oxlade39.scalabetfair.domain.MarketPrices
+import com.github.oxlade39.scalabetfair.request.AllMarketsRequest
+import com.github.oxlade39.scalabetfair.domain.MarketDetail
+import com.github.oxlade39.scalabetfair.domain.MarketTradedVolume
+import com.github.oxlade39.scalabetfair.request.Event
+import com.github.oxlade39.scalabetfair.domain.MarketName
 
 /**
  * Betfair service facade which interacts with the remote exchange to
@@ -38,5 +45,10 @@ trait BetfairMarketService {
    */
   def completeMarketPrices(market: MarketName, currency: Option[String] = None): Either[MarketPrices, RequestError]
 
+  def completeMarketPricesData(market: MarketName, currency: Option[String] = None): Either[CompleteMarketPricesData, RequestError]
+
   def marketTradedVolume(marketId: Int, currency: String): Either[MarketTradedVolume, RequestError]
+
+  def marketTradedVolumeData(marketId: Int, currency: String): Either[MarketTradedVolumeData, RequestError]
+
 }

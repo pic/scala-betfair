@@ -35,7 +35,10 @@ trait ResponseParserComponent {
     def toMarketPrices(response: GetMarketPricesCompressedResp, marketName: MarketName): Either[MarketPrices, RequestError]
     def toMarketPrices(response: GetCompleteMarketPricesCompressedResp,
                        marketName: MarketName): Either[MarketPrices, RequestError]
+    def toCompleteMarketPricesData(response: GetCompleteMarketPricesCompressedResp, timestamp: Long): Either[CompleteMarketPricesData, RequestError]
+
     def toMarketTradedVolume(response: GetMarketTradedVolumeCompressedResp): Either[MarketTradedVolume, RequestError]
+    def toMarketTradedVolumeData(response: GetMarketTradedVolumeCompressedResp, timestamp: Long): Either[MarketTradedVolumeData, RequestError]
 
   }
 }
@@ -107,6 +110,10 @@ trait RealResponseParserComponent extends ResponseParserComponent {
       }
     }
 
+    def toCompleteMarketPricesData(response: GetCompleteMarketPricesCompressedResp, timestamp: Long): Either[CompleteMarketPricesData, RequestError] = {
+      Left(CompleteMarketPricesData(timestamp, Option(response.getCompleteMarketPrices)))
+    }
+
     def toMarketLiteDetail(response: GetMarketInfoResp) =
       response.getErrorCode match {
         case GetMarketErrorEnum.OK => {
@@ -150,9 +157,13 @@ trait RealResponseParserComponent extends ResponseParserComponent {
 
       import MarketTradedVolumeDataParser._
 
-      val volume: InflatedMarketTradedVolume = inflateMarketTradedVolume(response.getTradedVolume)
+      val volume: Option[InflatedMarketTradedVolume] = Option(response.getTradedVolume).map { inflateMarketTradedVolume(_) }
 
       Left(MarketTradedVolume(response.getMarketId, response.getCurrencyCode, volume))
+    }
+
+    def toMarketTradedVolumeData(response: GetMarketTradedVolumeCompressedResp, timestamp: Long): Either[MarketTradedVolumeData, RequestError] = {
+      Left(MarketTradedVolumeData(response.getMarketId, response.getCurrencyCode, timestamp, Option(response.getTradedVolume)))
     }
 
   }

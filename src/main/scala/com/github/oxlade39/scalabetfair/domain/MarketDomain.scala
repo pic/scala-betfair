@@ -85,17 +85,30 @@ case class RunnerDetail(
  * @param runners
  */
 case class MarketPrices(
- market: MarketName,
- inPlayDelay: Int,
- runners: List[RunnerDetail],
- compressedSource: Option[String]
+  market: MarketName,
+  inPlayDelay: Int,
+  runners: List[RunnerDetail],
+  compressedSource: Option[String]
+)
+
+case class CompleteMarketPricesData(
+  timestamp: Long,
+  data: Option[String]
 )
 
 case class MarketTradedVolume(
   marketId: Int,
   currency: String,
-  volume: InflatedMarketTradedVolume
+  volume: Option[InflatedMarketTradedVolume]
 )
+
+case class MarketTradedVolumeData(
+  marketId: Int,
+  currency: String,
+  timestamp: Long,
+  data: Option[String]
+)
+
 
 /**
  * Collection of details pertaining to a specific Market on the betfair exchange
