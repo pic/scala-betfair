@@ -75,7 +75,8 @@ trait RealResponseParserComponent extends ResponseParserComponent {
           runnerPrices
         )
       }
-      Left(MarketPrices(marketName, prices.marketData.delay, runnerDetails, Some(response.getMarketPrices)))
+      val removedRunners = prices.marketData.removedRunners
+      Left(MarketPrices(marketName, prices.marketData.delay, removedRunners, runnerDetails, Some(response.getMarketPrices)))
     }
 
     def toMarketPrices(response: GetCompleteMarketPricesCompressedResp,
@@ -93,7 +94,10 @@ trait RealResponseParserComponent extends ResponseParserComponent {
             bfRunner.getTotalAmountMatched,
             bfRunner.getPrices.map(price => runnerPrice(price)).toList)
       }.toList
-      Left(MarketPrices(marketName, prices.getInPlayDelay, runnerDetails, Some(response.getCompleteMarketPrices)))
+      val removedRunners: List[RemovedRunnerInfo] = prices.getRemovedRunners.toList.map { removedRunner =>
+        RemovedRunnerInfo(removedRunner.getName, removedRunner.getRemovedDate, removedRunner.getAdjustmentFactor)
+      }
+      Left(MarketPrices(marketName, prices.getInPlayDelay, removedRunners, runnerDetails, Some(response.getCompleteMarketPrices)))
     }
 
     def runnersFromMarket(response: GetMarketResp): Either[List[Runner], RequestError] = {

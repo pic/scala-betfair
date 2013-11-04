@@ -1,5 +1,8 @@
 package com.github.oxlade39.scalabetfair.util
 
+import com.github.oxlade39.scalabetfair.domain.RemovedRunnerInfo
+import java.text.{ParseException, SimpleDateFormat}
+
 /**
  * Created with IntelliJ IDEA.
  * User: pic
@@ -64,7 +67,7 @@ object MarketPricesDataParser {
     val discountAllowed: Boolean,
     val marketBaseRate: BigDecimal,
     val lastRefresh: Long,
-    val removedRunners: String,
+    val removedRunners: List[RemovedRunnerInfo],
     val bspMarket: Boolean
   )
 
@@ -85,7 +88,7 @@ object MarketPricesDataParser {
         discountAllowed = parts(6).toBoolean,
         marketBaseRate = parts(7).toDouble,
         lastRefresh = parts(8).toLong,
-        removedRunners = parts(9),
+        removedRunners = extractRemovedRunnersData(parts(9)),
         bspMarket = "Y" == parts(10)
       )
 
@@ -106,13 +109,13 @@ object MarketPricesDataParser {
         throw InvalidMarketPricesData
 
       val backPrices: List[PriceInfo] = if (!parts.tail.isEmpty) {
-        priceInfos(escapedSplit(parts.tail.head, "~"))
+        priceInfo(escapedSplit(parts.tail.head, "~"))
       }
       else
         Nil
 
       val layPrices: List[PriceInfo] = if (!parts.tail.isEmpty && !parts.tail.tail.isEmpty)
-        priceInfos(escapedSplit(parts.tail.tail.head, "~"))
+        priceInfo(escapedSplit(parts.tail.tail.head, "~"))
       else
         Nil
 
@@ -146,7 +149,34 @@ object MarketPricesDataParser {
     }
   }
 
-  private def priceInfos(parts: List[String]): List[PriceInfo] = {
+  private def extractRemovedRunnersData(data: String): List[RemovedRunnerInfo] = {
+    val parts = escapedSplit(data, ";", -1).dropWhile { _.isEmpty }
+    if (parts.isEmpty)
+      Nil
+    else {
+      parts.map { removedRunnerData =>
+        val removedRunnerParts = escapedSplit(removedRunnerData, ",", -1)
+
+        if (removedRunnerParts.length != 3)
+          throw InvalidMarketPricesData
+        else {
+          try {
+            val removedAt = new SimpleDateFormat("H.mm").parse(removedRunnerParts(1))
+            RemovedRunnerInfo(
+              removedRunnerParts(0),
+              removedAt,
+              removedRunnerParts(2)
+            )
+          } catch {
+            case e: ParseException => throw InvalidMarketPricesData
+          }
+        }
+
+      }
+    }
+  }
+
+  private def priceInfo(parts: List[String]): List[PriceInfo] = {
     val (f, s) = parts.splitAt(4)
     if (f.length < 2)
       Nil
@@ -160,7 +190,7 @@ object MarketPricesDataParser {
       if (s.isEmpty)
         List(pi)
       else
-        pi :: priceInfos(s)
+        pi :: priceInfo(s)
     }
   }
 
